@@ -9,17 +9,42 @@
   <div id="first">
 <h1>jul-data-mapper</h1>
 <p>A tool for mapping a JavaScript object from a data schema to another data schema</p>
-<h2>Installati</h2>
-<p>Install with <a title="NPM" target="_blank" href="https://www.npmjs.com/">NPM</a></p>
+<h2>Install</h2>
+<p>Install with <a title="NPM" href="https://www.npmjs.com/">NPM</a></p>
 <p><code>npm i --save jul-data-mapper</code></p>
 </div>
 <div id="second">
 <h2>Usage</h2>
-<pre>const {mapper} = require('jul-data-mapper');
-console.log(mapper(dst, src, map));
-</pre>
-<h2>API</h2>
-<a title="API docs" href="../docs/">API docs</a>
+    <p>@fileOverview    Use this tool to map a JavaScript object from a data schema to another data schema<br>
+    Example code:</p>
+    <pre>'use strict';
+    const {mapper} = require('jul-data-mapper');
+    
+    const oSrc = {
+        server: 'express',
+        items: [
+            {id: 101, name: 'Ana'},
+            {id: 102, name: 'Bell'},
+            {id: 103, name: 'Kevin'}
+        ],
+        pref: {perPage: 25, filter: false},
+        grid: [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    };
+    const oDest = {version: '1.0.0'};
+    const oMap = {
+        'server': 'result.source',
+        'items[$u].id': 'result.entries[$u].uid',
+        'items[$u].name': 'result.entries[$u].fullName',
+        'grid[$i][$j]': 'map[$i][$j].value',
+        pref: 'result.show'
+    };
+    
+    console.info(
+        mapper(oDest, oSrc, oMap)
+    );
+    </pre>
+    <h2>API</h2>
+<a title="API docs" href="https://zonebuilder.github.io/data-mapper/docs/">API docs</a>
 </div>
 <div id="third">
 <h2>License</h2>

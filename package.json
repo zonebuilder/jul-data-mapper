@@ -1,13 +1,13 @@
 {
   "name": "jul-data-mapper",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A tool for mapping a JavaScript object from a data schema to another data schema",
   "main": "./source/lib/mapper.js",
   "scripts": {
     "start": "nodemon -x \"npm run lint && node source/tests/\" -w source/",
     "lint": "eslint --fix source/",
     "gendoc": "jsdoc -c jsdoc.json",
-    "genmd": "(html2md build/README.html -s #first && echo ## Usage && html2md docs/index.html -s #main && echo ## API && html2md docs/module-jul-data-mapper.html -s #main && html2md build/README.html -s #third) >README.md && node build/cleanmd.js",
+    "genmd": "html2md build/README.html > README.md",
     "build": "npm run lint && npm run gendoc && npm run genmd",
     "clean": "(chmod u+x build/_clean && PATH=\"build:$PATH\" && _clean) || (cls && (PATH=build;\"%PATH%\") && _clean)",
     "test": "node source/tests/"
