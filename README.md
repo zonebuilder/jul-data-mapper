@@ -17,39 +17,38 @@ Install with [NPM](https://www.npmjs.com/)
 
 ## Usage
 
-    @fileOverview    Use this tool to map a JavaScript object from a data schema to another data schema  
+Use this tool to map a JavaScript object from a data schema to another data schema  
 
-    Example code:  
+Example code:  
 
 
-    
+
 ```
 'use strict';
-    const {mapper} = require('jul-data-mapper');
-    
-    const oSrc = {
-        server: 'express',
-        items: [
-            {id: 101, name: 'Ana'},
-            {id: 102, name: 'Bell'},
-            {id: 103, name: 'Kevin'}
-        ],
-        pref: {perPage: 25, filter: false},
-        grid: [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-    };
-    const oDest = {version: '1.0.0'};
-    const oMap = {
-        'server': 'result.source',
-        'items[$u].id': 'result.entries[$u].uid',
-        'items[$u].name': 'result.entries[$u].fullName',
-        'grid[$i][$j]': 'map[$i][$j].value',
-        pref: 'result.show'
-    };
-    
-    console.info(
-        mapper(oDest, oSrc, oMap)
-    );
-    
+const {mapper} = require('jul-data-mapper');
+
+const oSrc = {
+    server: 'express',
+    items: [
+        {id: 101, name: 'Ana'},
+        {id: 102, name: 'Bell'},
+        {id: 103, name: 'Kevin'}
+    ],
+    pref: {perPage: 25, filter: false},
+    grid: [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+};
+const oDest = {version: '1.0.0'};
+const oMap = {
+    'server': 'result.source',
+    'items[$u].id': 'result.entries[$u].uid',
+    'items[$u].name': 'result.entries[$u].fullName',
+    'grid[$i][$j]': 'map[$i][$j].value',
+    pref: 'result.show'
+};
+
+console.info(
+    mapper(oDest, oSrc, oMap)
+);
 ```
 
     
