@@ -1,0 +1,26 @@
+{
+    "tags": {
+        "allowUnknownTags": true,
+        "dictionaries": ["jsdoc"]
+    },
+    "source": {
+        "exclude": [],
+        "include": ["source/lib/"],
+        "includePattern": ".js$"
+    },
+    "templates": {
+        "referenceTitle": "Data Mapper",
+        "disableSort": false,
+        "collapse": true,
+        "resources": {
+            "google": "https://www.google.com/"
+        }
+    },
+    "opts": {
+        "template": "build/jsdoc-template",
+        "destination": "docs/",
+        "encoding": "utf8",
+        "private": false,
+        "recurse": true
+    }
+}

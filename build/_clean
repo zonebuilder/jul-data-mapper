@@ -1,0 +1,7 @@
+#!/bin/sh
+projdocs="docs/"
+projmodules="node_modules/"
+projlock="package-lock.json"
+test $projdocs && rm -r $projdocs
+test $projmodules && rm -r $projmodules
+test $projlock && rm $projlock
