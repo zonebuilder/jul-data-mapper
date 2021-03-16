@@ -10,7 +10,8 @@ Install with [NPM](https://www.npmjs.com/)
 
 
 `npm i --save jul-data-mapper`
-## Usage 
+## Usage
+
 <section>
   <header>
     
@@ -150,16 +151,12 @@ Install with [NPM](https://www.npmjs.com/)
     
   </article>
 </section>
-## API 
-# 
-        jul-data-mapper
-      
 
-    
+## API
 
-    
+# jul-data-mapper
 
-<section>
+ <section>
   <header>
     
       
@@ -642,6 +639,7 @@ Install with [NPM](https://www.npmjs.com/)
     
   </article>
 </section>
+
 ## License
 
  Licensed under GNU GPLv2 or later and under GNU LGPLv3 or later. See enclosed 'licenses' folder.  
