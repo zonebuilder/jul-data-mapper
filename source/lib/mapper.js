@@ -1,13 +1,15 @@
 /*
-    JUL jul-data-mapper v1.0.0
+    JUL jul-data-mapper v1.0.5
     Copyright (c) 2021 The Zonebuilder <zone.builder@gmx.com>
-    https://www.npmjs.com/package/data-mapper
+    https://www.npmjs.com/package/jul-data-mapper
     Licenses: GNU GPL2 or later; GNU LGPLv3 or later
 */
 /**
     @fileOverview    Use this tool to map a JavaScript object from a data schema to another data schema<br>
-    Example code:
-    <pre>'use strict';
+    Use with parsed JSON responses or any native JavaScript object structures.<br>
+    Code example:
+    <code><pre>
+    'use strict';
     const {mapper} = require('jul-data-mapper');
     
     const oSrc = {
@@ -29,15 +31,23 @@
         pref: 'result.show'
     };
     
+	// source -> destination
     console.info(
         mapper(oDest, oSrc, oMap)
     );
-    </pre>
+    
+    const oReverseMap = Object.fromEntries(Object.entries(oMap).map(aItem => aItem.reverse()));
+    // destination -> source
+    console.info(
+        mapper({}, oDest, oReverseMap)
+    );
+    </pre></code>
     @author    {@link https://www.google.com/search?hl=en&num=50&start=0&safe=0&filter=0&nfpr=1&q=The+Zonebuilder+web+development+programming+IT+society+philosophy+politics|The Zonebuilder}
-    @version    1.0.0
+    @version    1.0.5
 */
 /**
-    Converts an object to another using a namespace path mapping
+    Converts an object to another using a namespace path mapping.<br>
+    Isomorphic: works both in backends and in frontends e.g. voa webpack
     @module jul-data-mapper
  */
 'use strict';
@@ -50,7 +60,8 @@ const jul = require('jul');
     @returns    {Array}    An array of path segments from left to right
     @private
 */
-const segments = sNs => sNs ? jul._square2dots(sNs, ':::::').split('.').map(sItem => sItem.replace(/:{5}/g, '.')) : [];
+const segments = sNs => sNs || sNs === 0 || sNs === false ?
+    jul._square2dots(sNs.toString(), ':::::').split('.').map(sItem => sItem.replace(/:{5}/g, '.')) : [];
 
 /**
     Makes a dotted path from an array of path segments<br>
@@ -69,19 +80,17 @@ const dotted = aSeg => jul.trim(aSeg.map(sItem => sItem.toString().replace(/\./g
     @private
 */
 const intersect = (aNs1, aNs2) => {
-    const aNs = aNs1.length > aNs2.length ? aNs2 : aNs1;
-    const oAcc = aNs.reduce(({pair: aPair, done: bDone, result: aRes}, sItem, i) => {
-        const bMatch = !bDone && sItem === aPair[i];
-        return {
-            pair: aPair,
-            done: !bMatch,
-            result: aRes.concat(bMatch ? sItem : [])
-        };}, {
-        pair: aNs === aNs1 ? aNs2 : aNs1,
-        done: false,
-        result: []
-    });
-    return oAcc.result;
+    const aNs = aNs2.length > aNs1.length ? aNs1 : aNs2;
+    const aPair = aNs === aNs1 ? aNs2 : aNs1;
+    const aRes = [];
+    for (let i = 0; i < aNs.length; i++) {
+        const sa = aNs[i].toString();
+        const sb = aPair[i].toString();
+        const eq = sa === sb;
+        if (aRes.length && !eq) { return aRes; }
+        if (eq) { aRes.push(sa); }
+    }
+    return aRes;
 };
 
 /**
@@ -109,7 +118,7 @@ const compact = oMap => {
             const aRest2 = aNs2.slice(nIntersect);
             if (aRest1.length || aRest2.length) {
                 const sCommon = dotted(aIntersect);
-                if (!oRes[sCommon] || typeof oRes[sCommon] !== 'object') { oRes[sCommon] = {'.': '.'}; }
+                if (!oRes[sCommon] || typeof oRes[sCommon] !== 'object') { oRes[sCommon] = {}; }
                 if (aRest2.length) {
                     oRes = Object.keys(oRes).reduce((oAcc, s) => {
                         if (s === sItem) {
@@ -140,7 +149,7 @@ const compact = oMap => {
     Object.keys(oRes).forEach(sKey => {
         const oVal = oRes[sKey];
         if (oVal && typeof oVal === 'object') { oRes[sKey] = compact(oVal); }
-        if (typeof oVal === 'string' && oVal !== '.') { oRes[sKey] = jul._square2dots(oVal); }
+        else if (typeof oVal === 'string' && oVal !== '.') { oRes[sKey] = jul._square2dots(oVal); }
     });
     return oRes;
 };
@@ -221,9 +230,13 @@ const mapper = (oDest, oSrc, oMap, oConfig) => {
                     const aPath = segments(oMapVal).map(sItem => oConfig.uint.test(sItem) ? '$$n' : sItem);
                     for (var j = 0; j < oLevel.hash.length; j++) {
                         const aItem = oLevel.hash[j];
-                        const aIntersect = intersect(aItem, aPath);
+                        const aIntersect = intersect(aPath, aItem);
                         if (aIntersect.length === aPath.length && aIntersect.length !== aItem.length) { return; }
-                        if (aIntersect.length === aPath.length && aItem.length === aPath.length) { j = oLevel.hash.length + 1;  }
+                        else if (aIntersect.length === aPath.length && aPath.length === aItem.length) { j = oLevel.hash.length + 1;  }
+                        else if (aIntersect.length === aItem.length && aIntersect.length !== aPath.length) {
+                            oLevel.hash[j] = aPath;
+                            j = oLevel.hash.length + 1; 
+                        }
                     }
                     if (j === oLevel.hash.length) { oLevel.hash.push(aPath); }
                 }
@@ -238,4 +251,4 @@ const mapper = (oDest, oSrc, oMap, oConfig) => {
     return oDest;
 };
 
-Object.assign(exports, {mapper, compact});
+module.exports = {mapper, compact};

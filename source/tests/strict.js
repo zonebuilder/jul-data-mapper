@@ -1,7 +1,7 @@
 /*
-    JUL Data Mapper v1.0.0
+    JUL Data Mapper v1.0.5
     Copyright (c) 2021 The Zonebuilder <zone.builder@gmx.com>
-    https://www.npmjs.com/package/data-mapper
+    https://www.npmjs.com/package/jul-data-mapper
     Licenses: GNU GPL2 or later; GNU LGPLv3 or later
 */
 /**
@@ -34,6 +34,6 @@ const oMap = {
 };
 
 console.log('// strict mode - descendant values won\'t be overwritten when mapping ');
-console.log(tools.obj2str(
+console.info(tools.obj2str(
     mapper(oDest, oSrc, oMap, {strict: true})
 ));
