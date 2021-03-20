@@ -47,7 +47,7 @@
 */
 /**
     Converts an object to another using a namespace path mapping.<br>
-    Isomorphic: works both in backends and in frontends e.g. voa webpack
+    Isomorphic: works both in backends and in frontends via e.g. webpack
     @module jul-data-mapper
  */
 'use strict';

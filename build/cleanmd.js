@@ -35,7 +35,7 @@ const block = (sHtml, sTag, sAttr) => {
         return oRes;
     }, {n: 0, divs: ['']});
     return oRes.divs.join(sOpen).replace(/>\s+</g, '><')
-    .replace(/>\s+/g, '>').replace(/\n\x20{4}/g, '\n').replace(/(<br)/g, '\n$1');
+        .replace(/>\s+/g, '>').replace(/\n\x20{4}/g, '\n').replace(/(<br)/g, '\n$1');
 };
 
 const sApi = fs.readFileSync('docs/module-jul-data-mapper.html', 'utf8');
@@ -47,9 +47,10 @@ const aSeg = [
     `<div><h2>API</h2>${block(sApi, 'div', 'id="main"')}</div>`,
     `${block(sReadme, 'div', 'id="third"')}`
 ].map(h2m).map(sItem =>
-    sItem.replace(/nametype(attributes)?description/gi, '').replace(/\[#~/g, '[')
-    .replace(/\n#{1,2}\s([a-z])/g, '\n#### $1').replace('\n`\n', '\n```js\n').replace('\n`\n', '\n```\n')
+    sItem.replace(/nametype(attributes)?description/gi, '').replace(/\[#~/g, '[').replace(/\n\x20{4}/g, '\n')
+        .replace(/\n#{1,2}\s([a-z])/g, '\n#### $1').replace('\n`\n', '\n```js\n').replace('\n`\n', '\n```\n')
         .replace(/\[mapper\.js(\s|\S)+?#line(\d+)\)/g, '[mapper.js, line $2](source/lib/mapper.js#L$2)')
+        .replace(/->(\w)/g, '-> $1').replace(/(<optional>)\n/gi, '$1').replace(/\n\s+\n/g, '\n\n')
 );
 aSeg.push('');
 fs.writeFileSync('README.md', aSeg.join('\n\n'));
