@@ -1,5 +1,5 @@
 /*
-    JUL jul-data-mapper v1.0.5
+    JUL jul-data-mapper v1.0.7
     Copyright (c) 2021 The Zonebuilder <zone.builder@gmx.com>
     https://www.npmjs.com/package/jul-data-mapper
     Licenses: GNU GPL2 or later; GNU LGPLv3 or later
@@ -43,7 +43,7 @@
     );
     </pre></code>
     @author    {@link https://www.google.com/search?hl=en&num=50&start=0&safe=0&filter=0&nfpr=1&q=The+Zonebuilder+web+development+programming+IT+society+philosophy+politics|The Zonebuilder}
-    @version    1.0.5
+    @version    1.0.7
 */
 /**
     Converts an object to another using a namespace path mapping.<br>
@@ -55,7 +55,7 @@ const jul = require('jul');
 
 /**
     Gets the array of segments for a JavaScript path<br>
-    e.g. <code>'a.b.c[1[2].d' => ['a', 'b', 'c', '1', '2', 'd']  </code>
+    e.g. <code>'a.b.c[1][2].d' => ['a', 'b', 'c', '1', '2', 'd']  </code>
     @param    {String}    sNs    A JavaScript (namespace) path
     @returns    {Array}    An array of path segments from left to right
     @private
@@ -172,6 +172,8 @@ const compact = oMap => {
 */
 const mapper = (oDest, oSrc, oMap, oConfig) => {
     oConfig = oConfig || {};
+    const bStart = !oConfig._level;
+    if (bStart) { oConfig = Object.assign({}, oConfig); }
     oConfig.uint = oConfig.uint || /\$[a-z]/;
     if (typeof oConfig.uint !== 'object') {
         oConfig.uint = new RegExp(oConfig.uint.toString().split('').map(c => {
@@ -183,47 +185,56 @@ const mapper = (oDest, oSrc, oMap, oConfig) => {
     oConfig._level = oConfig._level || {
         instSrc: jul.instance({nsRoot: oSrc}),
         instDest: jul.instance({nsRoot: oDest}),
-        depth: 0,
         indexes: [],
-        hash: []
+        depth: 0,
+        hash: [],
+        refs: [],
+        last: null,
+        reEsc: /\\(\.|\[|\])/g,
+        reDot: /(\.|\[|\])/g
     };
     const oLevel = oConfig._level;
     if (typeof oMap['.'] === 'undefined') { oMap = compact(oMap); }
+    const oDotVal = oMap['.'];
+    const aIx = oDotVal && typeof oDotVal === 'object' ? oDotVal : null;
+    if (oConfig.strict || aIx) { delete oMap['.']; }
     const aKeys = Object.keys(oMap);
-    (oConfig.strict ? aKeys.filter(sKey => sKey !== '.').concat('.') : aKeys).forEach(sKey => {
-        if (!sKey) { return; }
-        const oMapVal = typeof oMap[sKey] === 'object' ? oMap[sKey] :
-            jul.trim([].concat(oMap[oConfig.prefixProp] || [], oMap[sKey]).join('.'), '.', true);
+    if (oConfig.strict && oDotVal && !aIx) {
+        oMap['.'] = oDotVal;
+        aKeys.push('.');
+    }
+    aKeys.forEach((sKey, ix) => {
+        const oMapVal = typeof oMap[sKey] !== 'object' ? jul.trim(!oMap[oConfig.prefixProp] ?
+            oMap[sKey].toString() : oMap[oConfig.prefixProp] + '.' + oMap[sKey], '.', true) : oMap[sKey];
         if (!oMapVal) { return; }
+        if (aIx) { oLevel.indexes[oLevel.depth - 1] = aIx[ix]; }
         if (oConfig.uint.test(sKey)) {
-            const sParent = dotted(segments(sKey.split(oConfig.uint)[0]).filter(sItem => sItem));
+            const aRex = sKey.split(oConfig.uint);
+            const sParent = dotted(segments(aRex[0]).filter(sItem => sItem));
             const oTo = oLevel.instSrc.get(sParent);
             if (!oTo || typeof oTo !== 'object') { return; }
-            const oNewLevel = jul.apply({
-                depth: oLevel.depth + 1
-            }, oLevel, true);
-            oLevel.indexes[oLevel.depth] = 0;
-            for (const oItem of oTo) {
-                if (typeof oItem !== 'undefined') {
-                    const oNewMap = {'.': '.'};
-                    oNewMap[sKey.replace(oConfig.uint, oLevel.indexes[oLevel.depth])] =  oMap[sKey];
-                    mapper(oDest, oSrc, oNewMap, jul.apply({
-                        _level: oNewLevel
-                    }, oConfig, true));
-                }
-                oLevel.indexes[oLevel.depth]++;
+            const aIv = [];
+            const oNewMap = {};
+            const oEntries = typeof oTo.entries === 'function' ? oTo.entries() : Object.entries(oTo);
+            for (const [i, oItem] of oEntries) {
+                const s = i.toString().replace(oLevel.reDot, '\\$1');
+                aIv.push(s);
+                oNewMap[sKey.replace(oConfig.uint, s)] = typeof oItem !== 'undefined' ? oMap[sKey] : '';
             }
+            oNewMap['.'] = aIv;
+            oLevel.depth++;
+            oLevel.indexes.length = oLevel.depth;
+            mapper(oDest, oSrc, oNewMap, oConfig);
+            oLevel.depth--;
         }
         else {
             oSrc = oLevel.instSrc.get(jul.trim(sKey, '.', true));
             if (typeof oSrc === 'undefined') { return; }
             if (typeof oMapVal === 'object') {
-                const oNewLevel = jul.apply({
-                    instSrc: jul.instance({nsRoot: oSrc})
-                }, oConfig._level, true);
-                mapper(oDest, oSrc, oMap[sKey], jul.apply({
-                    _level: oNewLevel
-                }, oConfig, true));
+                const oInst = oLevel.instSrc;
+                oLevel.instSrc = jul.instance({nsRoot: oSrc});
+                mapper(oDest, oSrc, oMap[sKey], oConfig);
+                oLevel.instSrc = oInst;
             }
             else {
                 if (oConfig.strict) {
@@ -240,14 +251,54 @@ const mapper = (oDest, oSrc, oMap, oConfig) => {
                     }
                     if (j === oLevel.hash.length) { oLevel.hash.push(aPath); }
                 }
-                const sMapTo = !oLevel.depth || !oConfig.uint.test(oMapVal) ? oMapVal :
-                    oLevel.indexes.slice(0, oLevel.depth).reduce((sNs, n) => {
+                const bIterate = oLevel.depth && oConfig.uint.test(oMapVal);
+                const sMapTo = !bIterate ? oMapVal :
+                    oLevel.indexes.reduce((sNs, n) => {
                         return sNs.replace(oConfig.uint, n);
                     }, oMapVal);
+                const aEsc = sMapTo.split('\\.');
+                const aDot = aEsc.join('').split('.');
+                let nLast = aDot.pop().length;
+                const nRank = aDot.length;
+                if (!nRank) {
+                    oDest[sMapTo.replace(oLevel.reEsc, '$1')] = oSrc;
+                    return;
+                }
+                const nEsc = aEsc.length - 1;
+                if (nEsc && nLast >= aEsc[nEsc].length) {
+                    for (let k = 1, l = nLast - aEsc[nEsc].length; k <= nEsc; k++, l -= aEsc[nEsc - k].length) {
+                        if (l < aEsc[nEsc - k].length) {
+                            nLast += k << 1;
+                            break;
+                        }
+                    }
+                }
+                const sParent = sMapTo.slice(0, -nLast - 1);
+                const aCheck = oLevel.refs[nRank - 1];
+                if (aCheck && aCheck[0] === sParent) {
+                    aCheck[1][sMapTo.substr(-nLast).replace(oLevel.reEsc, '$1')] = oSrc;
+                    return;
+                }
+                const sEnd = bIterate ? oLevel.indexes[oLevel.depth - 1] + oMapVal.split(oConfig.uint).pop() : '';
+                const sRef = bIterate ? sMapTo.slice(0, -sEnd.length - 1) : '';
+                if (bIterate && oLevel.last && oLevel.last[0] === sRef) {
+                    jul.ns(sEnd, oSrc, oLevel.last[1]);
+                    return;
+                }
                 oLevel.instDest.ns(sMapTo, oSrc);
+                oLevel.refs[nRank - 1] = [sParent, oLevel.instDest.get(sParent)];
+                if (bIterate && sMapTo.substr(-nLast) !== sEnd) {
+                    oLevel.last = [sRef, oLevel.instDest.get(sRef)];
+                }
             }
         }
     });
+    if (bStart) {
+        oLevel.refs.length = 0;
+        delete oLevel.last;
+        oLevel.hash.length = 0;
+        oLevel.indexes.length = 0;
+    }
     return oDest;
 };
 

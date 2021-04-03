@@ -1,10 +1,10 @@
 {
   "name": "jul-data-mapper",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "A tool for mapping a JavaScript object from a data schema to another data schema",
   "main": "./source/lib/mapper.js",
   "scripts": {
-    "start": "nodemon -x \"npm run lint && node source/tests/\" -w source/",
+    "start": "nodemon -x \"npm run lint && node source/tests/strict.js\" -w source/",
     "lint": "eslint --fix source/",
     "gendoc": "jsdoc -c jsdoc.json",
     "genmd": "node build/cleanmd.js",

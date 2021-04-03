@@ -53,7 +53,7 @@ console.info(
 
 ```
 Version:
-- 1.0.5
+- 1.0.7
 
 Author:
 - [The Zonebuilder](https://www.google.com/search?hl=en&amp;num=50&amp;start=0&amp;safe=0&amp;filter=0&amp;nfpr=1&amp;q=The+Zonebuilder+web+development+programming+IT+society+philosophy+politics)

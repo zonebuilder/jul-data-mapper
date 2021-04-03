@@ -1,5 +1,5 @@
 /*
-    JUL Data Mapper v1.0.5
+    JUL Data Mapper v1.0.7
     Copyright (c) 2021 The Zonebuilder <zone.builder@gmx.com>
     https://www.npmjs.com/package/jul-data-mapper
     Licenses: GNU GPL2 or later; GNU LGPLv3 or later
@@ -30,7 +30,8 @@ const oMap = {
     pref: 'result.show',
     items: 'result',
     'grid[$i]': 'map[$i]',
-    'grid[1][1]': 'result.entries'
+    'grid[1][1]': 'result.entries',
+    'pref.filter': 'abc\\.123[efg\\.456]'
 };
 
 console.log('// strict mode - descendant values won\'t be overwritten when mapping ');

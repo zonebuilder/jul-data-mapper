@@ -1,3 +1,6 @@
+v1.0.7 | 2021-04-03
+  * speed improvement
+  * maps iterables keeping their keys
 v1.0.5 | 2021-03-20
   * better readme
   * small optimizations
