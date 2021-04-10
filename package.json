@@ -1,6 +1,6 @@
 {
   "name": "jul-data-mapper",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "A tool for mapping a JavaScript object from a data schema to another data schema",
   "main": "./source/lib/mapper.js",
   "scripts": {

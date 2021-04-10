@@ -1,5 +1,5 @@
 /*
-    JUL Data Mapper v1.0.7
+    JUL Data Mapper v1.1.0
     Copyright (c) 2021 The Zonebuilder <zone.builder@gmx.com>
     https://www.npmjs.com/package/jul-data-mapper
     Licenses: GNU GPL2 or later; GNU LGPLv3 or later
@@ -30,13 +30,28 @@ const oMap = {
     pref: 'result.show'
 };
 
-console.log('// source -> destination');
+console.info('// source -> destination');
 console.info(tools.obj2str(
     mapper(oDest, oSrc, oMap)
 ));
 
+console.info('// destination -> source');
 const oReverseMap = Object.fromEntries(Object.entries(oMap).map(aItem => aItem.reverse()));
-console.log('// destination -> source');
 console.info(tools.obj2str(
     mapper({}, oDest, oReverseMap)
+));
+
+console.info('// using a more compact form of mapping');
+const oCompactMap = {
+    'server': 'result.source',
+    'items[$u]': {
+        _mapTo: 'result.entries[$u]',
+        id: 'uid',
+        name: 'fullName'
+    },
+    'grid[$i][$j]': 'map[$i][$j].value',
+    pref: 'result.show'
+};
+console.info(tools.obj2str(
+    mapper({}, oSrc, oCompactMap, {prefixProp: '_mapTo'})
 ));

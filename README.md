@@ -22,38 +22,53 @@ Code example:
 const {mapper} = require('jul-data-mapper');
 
 const oSrc = {
-    server: 'express',
-    items: [
-        {id: 101, name: 'Ana'},
-        {id: 102, name: 'Bell'},
-        {id: 103, name: 'Kevin'}
-    ],
-    pref: {perPage: 25, filter: false},
-    grid: [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+server: 'express',
+items: [
+    {id: 101, name: 'Ana'},
+    {id: 102, name: 'Bell'},
+    {id: 103, name: 'Kevin'}
+],
+pref: {perPage: 25, filter: false},
+grid: [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
 };
 const oDest = {version: '1.0.0'};
 const oMap = {
-    'server': 'result.source',
-    'items[$u].id': 'result.entries[$u].uid',
-    'items[$u].name': 'result.entries[$u].fullName',
-    'grid[$i][$j]': 'map[$i][$j].value',
-    pref: 'result.show'
+'server': 'result.source',
+'items[$u].id': 'result.entries[$u].uid',
+'items[$u].name': 'result.entries[$u].fullName',
+'grid[$i][$j]': 'map[$i][$j].value',
+pref: 'result.show'
 };
 
-	// source -> destination
+// source -> destination
 console.info(
-    mapper(oDest, oSrc, oMap)
+mapper(oDest, oSrc, oMap)
 );
 
-const oReverseMap = Object.fromEntries(Object.entries(oMap).map(aItem =>aItem.reverse()));
 // destination -> source
+const oReverseMap = Object.fromEntries(Object.entries(oMap).map(aItem =>aItem.reverse()));
 console.info(
-    mapper({}, oDest, oReverseMap)
+mapper({}, oDest, oReverseMap)
+);
+
+// using a more compact form of mapping
+const oCompactMap = {
+'server': 'result.source',
+'items[$u]': {
+    _mapTo: 'result.entries[$u]',
+    id: 'uid',
+    name: 'fullName'
+},
+'grid[$i][$j]': 'map[$i][$j].value',
+pref: 'result.show'
+};
+console.info(
+mapper({}, oSrc, oCompactMap, {prefixProp: '_mapTo'})
 );
 
 ```
 Version:
-- 1.0.7
+- 1.1.0
 
 Author:
 - [The Zonebuilder](https://www.google.com/search?hl=en&amp;num=50&amp;start=0&amp;safe=0&amp;filter=0&amp;nfpr=1&amp;q=The+Zonebuilder+web+development+programming+IT+society+philosophy+politics)
@@ -70,7 +85,7 @@ Converts an object to another using a namespace path mapping.
 Isomorphic: works both in backends and in frontends via e.g. webpack
 
 Source:
-- [mapper.js, line 48](source/lib/mapper.js#L48)
+- [mapper.js, line 63](source/lib/mapper.js#L63)
 
 ### Methods
 [compact](#~compact)
@@ -83,7 +98,7 @@ Compacts a mapping (key:value) object into a tree-like structure
 Key-value object to compact
 
 Source:
-- [mapper.js, line 101](source/lib/mapper.js#L101)
+- [mapper.js, line 126](source/lib/mapper.js#L126)
 
 [mapper](#~mapper)
 #### (inner) mapper(oDest, oSrc, oMap, oConfigopt)&rarr; {Object}
@@ -112,12 +127,12 @@ as a prefix when computing the destination namespace for the current siblings.
 
 Defaults to `'_mapToPrefix'`
 - `strict {Boolean}`- performs checkings of not overwriting descendant values
-that are already. 
+that are already mapped. 
 
 Defaults tO `false`
 
 Source:
-- [mapper.js, line 173](source/lib/mapper.js#L173)
+- [mapper.js, line 198](source/lib/mapper.js#L198)
 
 ## License
 
