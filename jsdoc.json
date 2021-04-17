@@ -13,7 +13,7 @@
         "disableSort": false,
         "collapse": true,
         "resources": {
-            "google": "https://www.google.com/"
+            "Node package": "https://www.npmjs.com/package/jul-data-mapper"
         }
     },
     "opts": {

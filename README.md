@@ -68,7 +68,7 @@ mapper({}, oSrc, oCompactMap, {prefixProp: '_mapTo'})
 
 ```
 Version:
-- 1.1.0
+- 1.1.1
 
 Author:
 - [The Zonebuilder](https://www.google.com/search?hl=en&amp;num=50&amp;start=0&amp;safe=0&amp;filter=0&amp;nfpr=1&amp;q=The+Zonebuilder+web+development+programming+IT+society+philosophy+politics)
@@ -129,7 +129,7 @@ Defaults to `'_mapToPrefix'`
 - `strict {Boolean}`- performs checkings of not overwriting descendant values
 that are already mapped. 
 
-Defaults tO `false`
+Defaults to `false`
 
 Source:
 - [mapper.js, line 198](source/lib/mapper.js#L198)

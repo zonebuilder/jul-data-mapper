@@ -1,5 +1,5 @@
 /*
-    JUL jul-data-mapper v1.1.0
+    JUL jul-data-mapper v1.1.1
     Copyright (c) 2021 The Zonebuilder <zone.builder@gmx.com>
     https://www.npmjs.com/package/jul-data-mapper
     Licenses: GNU GPL2 or later; GNU LGPLv3 or later
@@ -58,7 +58,7 @@
  * );
  * </code></pre>
  * @author    {@link https://www.google.com/search?hl=en&num=50&start=0&safe=0&filter=0&nfpr=1&q=The+Zonebuilder+web+development+programming+IT+society+philosophy+politics|The Zonebuilder}
- * @version    1.1.0
+ * @version    1.1.1
  */
 /**
  * Converts an object to another using a namespace path mapping.<br>
@@ -191,7 +191,7 @@ const compact = oMap => {
  * as a prefix when computing the destination namespace for the current siblings.
  * <br>Defaults to <code>'_mapToPrefix'</code></li>
  * <li><code>strict {Boolean}</code> - performs checkings of not overwriting descendant values
- * that are already mapped. <br>Defaults tO <code>false</code></li>
+ * that are already mapped. <br>Defaults to <code>false</code></li>
  * </ul>
  * @returns    {Object}    The destination object
  */
@@ -211,6 +211,7 @@ const mapper = (oDest, oSrc, oMap, oConfig) => {
         instSrc: jul.instance({nsRoot: oSrc}),
         indexes: [],
         depth: 0,
+        splits: 0,
         refs: [],
         last: [],
         hash: []
@@ -234,7 +235,7 @@ const mapper = (oDest, oSrc, oMap, oConfig) => {
             oMap[sKey].toString() : sMapPrefix + '.' + oMap[sKey], '.', true) : oMap[sKey];
         if (!oMapVal) { return; }
         if (aIx) { oLevel.indexes[oLevel.depth - 1] = aIx[ix]; }
-        if (oConfig.uint.test(sKey)) {
+        if (oLevel.splits !== 1 && (oLevel.splits || oConfig.uint.test(sKey))) {
             const aRex = sKey.split(oConfig.uint);
             const sParent = dotted(segments(aRex[0]).filter(sItem => sItem));
             const oTo = oLevel.instSrc.get(sParent);
@@ -248,15 +249,18 @@ const mapper = (oDest, oSrc, oMap, oConfig) => {
                 oNewMap[sKey.replace(oConfig.uint, s)] = typeof oItem !== 'undefined' ? oMapVal : '';
             }
             oNewMap['.'] = aIv;
+            oLevel.splits = aRex.length - 1;
             oLevel.depth++;
             oLevel.indexes.length = oLevel.depth;
             mapper(oDest, oSrc, oNewMap, oConfig);
             oLevel.depth--;
+            oLevel.splits = 0;
         }
         else {
             oSrc = oLevel.instSrc.get(jul.trim(sKey, '.', true));
             if (typeof oSrc === 'undefined') { return; }
             if (typeof oMapVal === 'object') {
+                oLevel.splits = 0;
                 const oInst = oLevel.instSrc;
                 oLevel.instSrc = jul.instance({nsRoot: oSrc});
                 mapper(oDest, oSrc, oMapVal, oConfig);
@@ -277,7 +281,7 @@ const mapper = (oDest, oSrc, oMap, oConfig) => {
                     }
                     if (j === oLevel.hash.length) { oLevel.hash.push(aPath); }
                 }
-                const sMapTo = !oLevel.depth || !oConfig.uint.test(oMapVal) ? oMapVal :
+                const sMapTo = !oLevel.depth ? oMapVal :
                     oLevel.indexes.reduce((sNs, n) => {
                         return sNs.replace(oConfig.uint, n);
                     }, oMapVal);

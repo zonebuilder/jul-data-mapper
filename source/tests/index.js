@@ -1,5 +1,5 @@
 /*
-    JUL Data Mapper v1.1.0
+    JUL Data Mapper v1.1.1
     Copyright (c) 2021 The Zonebuilder <zone.builder@gmx.com>
     https://www.npmjs.com/package/jul-data-mapper
     Licenses: GNU GPL2 or later; GNU LGPLv3 or later
