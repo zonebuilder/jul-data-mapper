@@ -1,0 +1,14 @@
+{
+  "presets": [
+    ["@babel/preset-env", {
+      "loose": true,
+      "forceAllTransforms": true,
+      "useBuiltIns": "entry",
+      "corejs": "3.10",
+      "targets": {
+        "node": "0.10"
+      }
+    }]
+  ],
+  "comments": false
+}

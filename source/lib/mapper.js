@@ -1,5 +1,5 @@
 /*
-    JUL jul-data-mapper v1.1.1
+    JUL jul-data-mapper v1.1.2
     Copyright (c) 2021 The Zonebuilder <zone.builder@gmx.com>
     https://www.npmjs.com/package/jul-data-mapper
     Licenses: GNU GPL2 or later; GNU LGPLv3 or later
@@ -58,7 +58,7 @@
  * );
  * </code></pre>
  * @author    {@link https://www.google.com/search?hl=en&num=50&start=0&safe=0&filter=0&nfpr=1&q=The+Zonebuilder+web+development+programming+IT+society+philosophy+politics|The Zonebuilder}
- * @version    1.1.1
+ * @version    1.1.2
  */
 /**
  * Converts an object to another using a namespace path mapping.<br>
@@ -66,6 +66,8 @@
  * @module jul-data-mapper
  */
 'use strict';
+require('core-js');
+require('regenerator-runtime/runtime');
 const jul = require('jul');
 
 /**
@@ -225,7 +227,7 @@ const mapper = (oDest, oSrc, oMap, oConfig) => {
     if (!aIx) { oMap = Object.assign({}, oMap); }
     delete oMap[oConfig.prefixProp];
     if (oConfig.strict || aIx) { delete oMap['.']; }
-    const aKeys = Object.keys(oMap);
+    const aKeys = aIx ? aIx[1] : Object.keys(oMap);
     if (bKeep) {
         oMap['.'] = oDotVal;
         aKeys.push('.');
@@ -234,19 +236,21 @@ const mapper = (oDest, oSrc, oMap, oConfig) => {
         const oMapVal = typeof oMap[sKey] !== 'object' ? jul.trim(!sMapPrefix || sKey === '.' ?
             oMap[sKey].toString() : sMapPrefix + '.' + oMap[sKey], '.', true) : oMap[sKey];
         if (!oMapVal) { return; }
-        if (aIx) { oLevel.indexes[oLevel.depth - 1] = aIx[ix]; }
+        if (aIx) { oLevel.indexes[oLevel.depth - 1] = aIx[0][ix]; }
         if (oLevel.splits !== 1 && (oLevel.splits || oConfig.uint.test(sKey))) {
             const aRex = sKey.split(oConfig.uint);
             const sParent = dotted(segments(aRex[0]).filter(sItem => sItem));
             const oTo = oLevel.instSrc.get(sParent);
             if (!oTo || typeof oTo !== 'object') { return; }
-            const aIv = [];
+            const aIv = [[], []];
             const oNewMap = {};
-            const oEntries = typeof oTo.entries === 'function' ? oTo.entries() : Object.entries(oTo);
-            for (const [i, oItem] of oEntries) {
-                const s = i.toString().replace(rexs.dot, '\\$1');
-                aIv.push(s);
-                oNewMap[sKey.replace(oConfig.uint, s)] = typeof oItem !== 'undefined' ? oMapVal : '';
+            const aIterate = typeof oTo.keys === 'function' ? oTo.keys() : Object.keys(oTo);
+            for (const i of aIterate) {
+                const x = i.toString().replace(rexs.dot, '\\$1');
+                const s = sKey.replace(oConfig.uint, x);
+                aIv[0].push(x);
+                aIv[1].push(s);
+                oNewMap[s] = oMapVal;
             }
             oNewMap['.'] = aIv;
             oLevel.splits = aRex.length - 1;
