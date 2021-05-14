@@ -68,7 +68,7 @@ mapper({}, oSrc, oCompactMap, {prefixProp: '_mapTo'})
 
 ```
 Version:
-- 1.1.2
+- 1.1.3
 
 Author:
 - [The Zonebuilder](https://www.google.com/search?hl=en&amp;num=50&amp;start=0&amp;safe=0&amp;filter=0&amp;nfpr=1&amp;q=The+Zonebuilder+web+development+programming+IT+society+philosophy+politics)
@@ -98,7 +98,7 @@ Compacts a mapping (key:value) object into a tree-like structure
 Key-value object to compact
 
 Source:
-- [mapper.js, line 128](source/lib/mapper.js#L128)
+- [mapper.js, line 126](source/lib/mapper.js#L126)
 
 [mapper](#~mapper)
 #### (inner) mapper(oDest, oSrc, oMap, oConfigopt)&rarr; {Object}
@@ -132,7 +132,7 @@ that are already mapped.
 Defaults to `false`
 
 Source:
-- [mapper.js, line 200](source/lib/mapper.js#L200)
+- [mapper.js, line 198](source/lib/mapper.js#L198)
 
 ## License
 

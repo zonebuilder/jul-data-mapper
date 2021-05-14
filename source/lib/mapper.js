@@ -1,5 +1,5 @@
 /*
-    JUL jul-data-mapper v1.1.2
+    JUL jul-data-mapper v1.1.3
     Copyright (c) 2021 The Zonebuilder <zone.builder@gmx.com>
     https://www.npmjs.com/package/jul-data-mapper
     Licenses: GNU GPL2 or later; GNU LGPLv3 or later
@@ -58,7 +58,7 @@
  * );
  * </code></pre>
  * @author    {@link https://www.google.com/search?hl=en&num=50&start=0&safe=0&filter=0&nfpr=1&q=The+Zonebuilder+web+development+programming+IT+society+philosophy+politics|The Zonebuilder}
- * @version    1.1.2
+ * @version    1.1.3
  */
 /**
  * Converts an object to another using a namespace path mapping.<br>
@@ -66,8 +66,6 @@
  * @module jul-data-mapper
  */
 'use strict';
-require('core-js');
-require('regenerator-runtime/runtime');
 const jul = require('jul');
 
 /**
@@ -211,11 +209,10 @@ const mapper = (oDest, oSrc, oMap, oConfig) => {
     oConfig.strict = oConfig.strict || false;
     oConfig._level = oConfig._level || {
         instSrc: jul.instance({nsRoot: oSrc}),
+        instDest: jul.instance({nsRoot: oDest}),
         indexes: [],
         depth: 0,
         splits: 0,
-        refs: [],
-        last: [],
         hash: []
     };
     const oLevel = oConfig._level;
@@ -289,30 +286,13 @@ const mapper = (oDest, oSrc, oMap, oConfig) => {
                     oLevel.indexes.reduce((sNs, n) => {
                         return sNs.replace(oConfig.uint, n);
                     }, oMapVal);
-                const aSeg = segments(sMapTo);
-                const l = aSeg.length;
-                const m = intersect(oLevel.last, aSeg).length;
-                const n = m < l ? m : l - 1;
-                let oRef = n ? oLevel.refs[n - 1] : oDest;
-                for(let k = n; k < l - 1; k++) {
-                    const sTo = aSeg[k];
-                    if (typeof oRef[sTo] === 'undefined') {
-                        oRef[sTo] = rexs.nat.test(aSeg[k + 1]) ? [] : {};
-                    }
-                    oRef = oRef[sTo];
-                    oLevel.refs[k] = oRef;
-                }
-                const sEnd = aSeg.pop();
-                oRef[sEnd] = oSrc;
-                oLevel.last = aSeg;
+                oLevel.instDest.ns(sMapTo, oSrc);
             }
         }
     });
     if (bStart) {
-        oLevel.refs.length = 0;
         oLevel.hash.length = 0;
         oLevel.indexes.length = 0;
-        oLevel.last.length = 0;
     }
     return oDest;
 };

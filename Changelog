@@ -1,3 +1,5 @@
+v1.1.3 | 2021-05-15
+  * simplified dependencies
 v1.1.2 | 2021-04-23
   * transpiled with Babel for optimal use case
 v1.1.1 | 2021-04-17
